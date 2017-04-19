@@ -1,0 +1,8 @@
+CREATE OR REPLACE EDITIONABLE PACKAGE BODY "WORKSPACE_MANAGER_BL"
+IS
+   PROCEDURE initial_ws_after_login
+   IS
+   BEGIN
+      NULL;
+   END initial_ws_after_login;
+END "WORKSPACE_MANAGER_BL";

@@ -1,0 +1,1 @@
+GRANT EXECUTE ON history TO PUBLIC;

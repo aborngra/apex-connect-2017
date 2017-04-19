@@ -1,0 +1,1 @@
+GRANT EXECUTE ON table_api TO PUBLIC;

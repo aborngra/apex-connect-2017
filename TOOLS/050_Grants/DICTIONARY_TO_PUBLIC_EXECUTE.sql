@@ -1,0 +1,1 @@
+GRANT EXECUTE ON dictionary TO PUBLIC;

@@ -1,0 +1,1 @@
+CREATE OR REPLACE TYPE t_csv_tab AS TABLE OF t_csv_line;

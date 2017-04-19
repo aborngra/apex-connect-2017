@@ -1,0 +1,1 @@
+GRANT SELECT ON ctlg_svn_objects_seq TO PUBLIC;

@@ -1,0 +1,1 @@
+GRANT EXECUTE ON csv_parser TO PUBLIC;
