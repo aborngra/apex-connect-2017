@@ -27,7 +27,7 @@ prompt APPLICATION 101 - Oracle Workspace Manager mit Apex kombinieren
 -- Application Export:
 --   Application:     101
 --   Name:            Oracle Workspace Manager mit Apex kombinieren
---   Date and Time:   23:11 Wednesday April 19, 2017
+--   Date and Time:   02:58 Sunday April 23, 2017
 --   Exported By:     ABO
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -36,11 +36,11 @@ prompt APPLICATION 101 - Oracle Workspace Manager mit Apex kombinieren
 --
 
 -- Application Statistics:
---   Pages:                      3
---     Items:                    3
---     Processes:               17
---     Regions:                  4
---     Buttons:                  2
+--   Pages:                      4
+--     Items:                    5
+--     Processes:               18
+--     Regions:                  6
+--     Buttons:                  3
 --   Shared Components:
 --     Logic:
 --       Items:                  1
@@ -107,7 +107,7 @@ wwv_flow_api.create_flow(
 ,p_rejoin_existing_sessions=>'N'
 ,p_csv_encoding=>'Y'
 ,p_last_updated_by=>'ABO'
-,p_last_upd_yyyymmddhh24miss=>'20170419224111'
+,p_last_upd_yyyymmddhh24miss=>'20170423025830'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_ui_type_name => null
 );
@@ -8856,6 +8856,7 @@ wwv_flow_api.create_user_interface(
 ,p_home_url=>'f?p=&APP_ID.:1:&SESSION.'
 ,p_login_url=>'f?p=&APP_ID.:LOGIN_DESKTOP:&SESSION.'
 ,p_theme_style_by_user_pref=>false
+,p_global_page_id=>0
 ,p_navigation_list_id=>wwv_flow_api.id(2048154418252458)
 ,p_navigation_list_position=>'SIDE'
 ,p_navigation_list_template_id=>wwv_flow_api.id(2086905068252477)
@@ -8870,6 +8871,45 @@ end;
 prompt --application/user_interfaces/combined_files
 begin
 null;
+end;
+/
+prompt --application/pages/page_00000
+begin
+wwv_flow_api.create_page(
+ p_id=>0
+,p_user_interface_id=>wwv_flow_api.id(2100301153252497)
+,p_name=>'Global Page - Desktop'
+,p_page_mode=>'NORMAL'
+,p_step_title=>'Global Page - Desktop'
+,p_step_sub_title_type=>'TEXT_WITH_SUBSTITUTIONS'
+,p_first_item=>'NO_FIRST_ITEM'
+,p_autocomplete_on_off=>'OFF'
+,p_page_template_options=>'#DEFAULT#'
+,p_dialog_chained=>'Y'
+,p_overwrite_navigation_list=>'N'
+,p_page_is_public_y_n=>'N'
+,p_protection_level=>'D'
+,p_cache_mode=>'NOCACHE'
+,p_last_updated_by=>'ABO'
+,p_last_upd_yyyymmddhh24miss=>'20170423011515'
+);
+wwv_flow_api.create_page_plug(
+ p_id=>wwv_flow_api.id(2126508568087218)
+,p_plug_name=>'CSS_REGION'
+,p_region_template_options=>'#DEFAULT#'
+,p_plug_template=>wwv_flow_api.id(2056739937252466)
+,p_plug_display_sequence=>10
+,p_include_in_reg_disp_sel_yn=>'Y'
+,p_plug_display_point=>'REGION_POSITION_05'
+,p_plug_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'<style>',
+'  .red {color:red;}',
+'  .green {color:green;}',
+'</style>'))
+,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_attribute_01=>'N'
+,p_attribute_02=>'HTML'
+);
 end;
 /
 prompt --application/pages/page_00001
@@ -8890,15 +8930,16 @@ wwv_flow_api.create_page(
 ,p_page_is_public_y_n=>'N'
 ,p_cache_mode=>'NOCACHE'
 ,p_last_updated_by=>'ABO'
-,p_last_upd_yyyymmddhh24miss=>'20170418212716'
+,p_last_upd_yyyymmddhh24miss=>'20170423025830'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(1854444397787944)
-,p_plug_name=>'WM Workspace Overview'
+,p_plug_name=>'Create WM Workspace'
 ,p_region_template_options=>'#DEFAULT#:t-Region--scrollBody'
 ,p_plug_template=>wwv_flow_api.id(2066727649252469)
 ,p_plug_display_sequence=>10
 ,p_include_in_reg_disp_sel_yn=>'Y'
+,p_plug_grid_column_span=>3
 ,p_plug_display_point=>'BODY'
 ,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
 ,p_attribute_01=>'N'
@@ -8917,6 +8958,199 @@ wwv_flow_api.create_page_plug(
 ,p_plug_source_type=>'NATIVE_BREADCRUMB'
 ,p_menu_template_id=>wwv_flow_api.id(2090031781252480)
 ,p_plug_query_row_template=>1
+);
+wwv_flow_api.create_report_region(
+ p_id=>wwv_flow_api.id(2186349358081401)
+,p_name=>'Existing WM Workspaces'
+,p_template=>wwv_flow_api.id(2066727649252469)
+,p_display_sequence=>20
+,p_include_in_reg_disp_sel_yn=>'Y'
+,p_region_template_options=>'#DEFAULT#:t-Region--scrollBody'
+,p_component_template_options=>'#DEFAULT#:t-Report--altRowsDefault:t-Report--rowHighlight'
+,p_new_grid_row=>false
+,p_display_point=>'BODY'
+,p_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'SELECT ws.workspace',
+'     , ws.workspace_id',
+'     , ws.parent_workspace',
+'     , ws.owner',
+'     , ws.freeze_status',
+'     , ws.continually_refreshed',
+'     , meta.ws_app_user app_user',
+'     , meta.ws_app_id app_id',
+'     , CASE WHEN ws.workspace = ''LIVE'' THEN ''RED'' ELSE meta.ws_color END color',
+'  FROM all_workspaces ws',
+'       LEFT OUTER JOIN meta_workspaces meta ON ws.workspace_id = meta.ws_id',
+' WHERE meta.ws_app_id = :app_id',
+'    OR ws.workspace = ''LIVE'';'))
+,p_source_type=>'NATIVE_SQL_REPORT'
+,p_ajax_enabled=>'Y'
+,p_query_row_template=>wwv_flow_api.id(2076751292252472)
+,p_query_num_rows=>15
+,p_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_query_show_nulls_as=>'-'
+,p_query_num_rows_type=>'ROW_RANGES_IN_SELECT_LIST'
+,p_pagination_display_position=>'BOTTOM_RIGHT'
+,p_csv_output=>'N'
+,p_prn_output=>'N'
+,p_sort_null=>'L'
+,p_plug_query_strip_html=>'N'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2187252829081410)
+,p_query_column_id=>1
+,p_column_alias=>'WORKSPACE'
+,p_column_display_sequence=>2
+,p_column_heading=>'Workspace'
+,p_use_as_row_header=>'N'
+,p_disable_sort_column=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2187390517081411)
+,p_query_column_id=>2
+,p_column_alias=>'WORKSPACE_ID'
+,p_column_display_sequence=>4
+,p_column_heading=>'Workspace ID'
+,p_use_as_row_header=>'N'
+,p_disable_sort_column=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2187465397081412)
+,p_query_column_id=>3
+,p_column_alias=>'PARENT_WORKSPACE'
+,p_column_display_sequence=>8
+,p_column_heading=>'Parent Workspace'
+,p_use_as_row_header=>'N'
+,p_disable_sort_column=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2187534472081413)
+,p_query_column_id=>4
+,p_column_alias=>'OWNER'
+,p_column_display_sequence=>5
+,p_column_heading=>'Owner'
+,p_use_as_row_header=>'N'
+,p_disable_sort_column=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2186858056081406)
+,p_query_column_id=>5
+,p_column_alias=>'FREEZE_STATUS'
+,p_column_display_sequence=>6
+,p_column_heading=>'Freeze Status'
+,p_use_as_row_header=>'N'
+,p_disable_sort_column=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2186937093081407)
+,p_query_column_id=>6
+,p_column_alias=>'CONTINUALLY_REFRESHED'
+,p_column_display_sequence=>7
+,p_column_heading=>'Continually Refreshed'
+,p_use_as_row_header=>'N'
+,p_disable_sort_column=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2187008450081408)
+,p_query_column_id=>7
+,p_column_alias=>'APP_USER'
+,p_column_display_sequence=>3
+,p_column_heading=>'App User'
+,p_use_as_row_header=>'N'
+,p_disable_sort_column=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2187634746081414)
+,p_query_column_id=>8
+,p_column_alias=>'APP_ID'
+,p_column_display_sequence=>9
+,p_column_heading=>'App ID'
+,p_use_as_row_header=>'N'
+,p_disable_sort_column=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2187163512081409)
+,p_query_column_id=>9
+,p_column_alias=>'COLOR'
+,p_column_display_sequence=>1
+,p_use_as_row_header=>'N'
+,p_column_html_expression=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'<span style="background-color:#COLOR#; width: 100%; height: 100%; display: block;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>',
+''))
+,p_disable_sort_column=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_page_button(
+ p_id=>wwv_flow_api.id(2126378420087216)
+,p_button_sequence=>10
+,p_button_plug_id=>wwv_flow_api.id(1854444397787944)
+,p_button_name=>'WS_CREATE'
+,p_button_action=>'SUBMIT'
+,p_button_template_options=>'#DEFAULT#:t-Button--iconRight'
+,p_button_template_id=>wwv_flow_api.id(2089679723252478)
+,p_button_image_alt=>'Create Workspace'
+,p_button_position=>'REGION_TEMPLATE_CREATE'
+,p_icon_css_classes=>'fa-database-check green'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(2126188103087214)
+,p_name=>'P1_WS_COLOR'
+,p_item_sequence=>20
+,p_item_plug_id=>wwv_flow_api.id(1854444397787944)
+,p_prompt=>'Workspace Color'
+,p_display_as=>'NATIVE_COLOR_PICKER'
+,p_cSize=>30
+,p_field_template=>wwv_flow_api.id(2089102234252478)
+,p_item_template_options=>'#DEFAULT#'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(2126211172087215)
+,p_name=>'P1_WS_NAME'
+,p_item_sequence=>10
+,p_item_plug_id=>wwv_flow_api.id(1854444397787944)
+,p_prompt=>'Workspace Name'
+,p_display_as=>'NATIVE_TEXT_FIELD'
+,p_cSize=>30
+,p_field_template=>wwv_flow_api.id(2089379651252478)
+,p_item_template_options=>'#DEFAULT#'
+,p_attribute_01=>'N'
+,p_attribute_02=>'N'
+,p_attribute_04=>'TEXT'
+,p_attribute_05=>'NONE'
+);
+wwv_flow_api.create_page_process(
+ p_id=>wwv_flow_api.id(2126662033087219)
+,p_process_sequence=>10
+,p_process_point=>'AFTER_SUBMIT'
+,p_process_type=>'NATIVE_PLSQL'
+,p_process_name=>'WS_CREATE'
+,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'BEGIN',
+'   workspace_manager_bl.ws_create(p_ws_app_user_session => :session',
+'                                , p_ws_app_user         => :app_user',
+'                                , p_ws_name             => :p1_ws_name',
+'                                , p_ws_color            => :p1_ws_color',
+'                                , p_ws_app_id           => :app_id);',
+'END;'))
+,p_error_display_location=>'INLINE_IN_NOTIFICATION'
+,p_process_when_button_id=>wwv_flow_api.id(2126378420087216)
 );
 end;
 /
