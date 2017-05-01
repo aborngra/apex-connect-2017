@@ -32,10 +32,12 @@ IS
       RETURN COALESCE(v_ret, gc_ws_live);
    END ws_of_user;
 
-   PROCEDURE ws_create(p_ws_app_user IN meta_workspaces.ws_app_user%TYPE
-                     , p_ws_name     IN meta_workspaces.ws_name%TYPE
-                     , p_ws_color    IN meta_workspaces.ws_color%TYPE
-                     , p_ws_app_id   IN meta_workspaces.ws_app_id%TYPE)
+   PROCEDURE ws_create(
+      p_ws_app_user IN meta_workspaces.ws_app_user%TYPE
+    , p_ws_name     IN meta_workspaces.ws_name%TYPE
+    , p_ws_color    IN meta_workspaces.ws_color%TYPE
+    , p_ws_app_id   IN meta_workspaces.ws_app_id%TYPE
+    , p_ws_refresh  IN all_workspaces.continually_refreshed%TYPE DEFAULT 'N')
    IS
       v_ws_id wmsys.all_workspaces.workspace_id%TYPE;
    BEGIN
@@ -44,12 +46,21 @@ IS
       --------------------------------------------------------------------------
       IF (p_ws_app_user IS NOT NULL
       AND p_ws_name IS NOT NULL
-      AND p_ws_app_id IS NOT NULL)
+      AND p_ws_app_id IS NOT NULL
+      AND p_ws_refresh IN ('Y'
+                         , 'N'
+                         , 'YES'
+                         , 'NO'))
       THEN
          -----------------------------------------------------------------------
          -- create workspace manager workspace
          -----------------------------------------------------------------------
-         DBMS_WM.createworkspace(workspace => p_ws_name);
+         DBMS_WM.createworkspace(
+            workspace   => p_ws_name
+          , isrefreshed => CASE
+                             WHEN p_ws_refresh IN ('Y', 'YES') THEN TRUE
+                             ELSE FALSE
+                          END);
 
          -----------------------------------------------------------------------
          -- read workspace_id for metadata record
@@ -206,5 +217,39 @@ IS
                       END);
       END IF;
    END ws_goto;
+
+   FUNCTION ws_get_parent(p_ws_name IN all_workspaces.workspace%TYPE)
+      RETURN all_workspaces.parent_workspace%TYPE
+   IS
+      v_ret all_workspaces.parent_workspace%TYPE;
+
+      CURSOR v_cur_parent
+      IS
+         SELECT parent_workspace
+           FROM all_workspaces
+          WHERE workspace = p_ws_name;
+   BEGIN
+      --------------------------------------------------------------------------
+      -- check params
+      --------------------------------------------------------------------------
+      IF (p_ws_name IS NOT NULL)
+      THEN
+         IF (p_ws_name = 'LIVE')
+         THEN
+            v_ret := p_ws_name;
+         ELSE
+            --------------------------------------------------------------------
+            -- find out parent
+            --------------------------------------------------------------------
+            OPEN v_cur_parent;
+
+            FETCH v_cur_parent INTO v_ret;
+
+            CLOSE v_cur_parent;
+         END IF;
+      END IF;
+
+      RETURN v_ret;
+   END ws_get_parent;
 END "WORKSPACE_MANAGER_BL";
 /
