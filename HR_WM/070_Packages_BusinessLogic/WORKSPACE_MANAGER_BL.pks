@@ -25,5 +25,9 @@ IS
 
    FUNCTION ws_get_parent(p_ws_name IN all_workspaces.workspace%TYPE)
       RETURN all_workspaces.parent_workspace%TYPE;
+
+   PROCEDURE sp_rollbackto(
+      p_ws_name IN all_workspace_savepoints.workspace%TYPE
+    , p_sp_name IN all_workspace_savepoints.savepoint%TYPE);
 END "WORKSPACE_MANAGER_BL";
 /

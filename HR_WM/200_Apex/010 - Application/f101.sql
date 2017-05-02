@@ -27,7 +27,7 @@ prompt APPLICATION 101 - Oracle Workspace Manager mit Apex kombinieren
 -- Application Export:
 --   Application:     101
 --   Name:            Oracle Workspace Manager mit Apex kombinieren
---   Date and Time:   00:31 Tuesday May 2, 2017
+--   Date and Time:   00:05 Wednesday May 3, 2017
 --   Exported By:     ABO
 --   Flashback:       0
 --   Export Type:     Application Export
@@ -37,12 +37,12 @@ prompt APPLICATION 101 - Oracle Workspace Manager mit Apex kombinieren
 
 -- Application Statistics:
 --   Pages:                     10
---     Items:                   13
+--     Items:                   19
 --     Validations:              1
---     Processes:               22
---     Regions:                 18
---     Buttons:                  5
---     Dynamic Actions:          5
+--     Processes:               23
+--     Regions:                 21
+--     Buttons:                  6
+--     Dynamic Actions:          7
 --   Shared Components:
 --     Logic:
 --       Items:                  2
@@ -145,7 +145,7 @@ wwv_flow_api.create_flow(
 ,p_rejoin_existing_sessions=>'N'
 ,p_csv_encoding=>'Y'
 ,p_last_updated_by=>'ABO'
-,p_last_upd_yyyymmddhh24miss=>'20170502000836'
+,p_last_upd_yyyymmddhh24miss=>'20170502235519'
 ,p_file_prefix => nvl(wwv_flow_application_install.get_static_app_file_prefix,'')
 ,p_ui_type_name => null
 );
@@ -24747,7 +24747,7 @@ wwv_flow_api.create_page(
 ,p_page_is_public_y_n=>'N'
 ,p_cache_mode=>'NOCACHE'
 ,p_last_updated_by=>'ABO'
-,p_last_upd_yyyymmddhh24miss=>'20170501200432'
+,p_last_upd_yyyymmddhh24miss=>'20170502235519'
 );
 wwv_flow_api.create_page_plug(
  p_id=>wwv_flow_api.id(2361968319112312)
@@ -24762,6 +24762,356 @@ wwv_flow_api.create_page_plug(
 ,p_plug_source_type=>'NATIVE_BREADCRUMB'
 ,p_menu_template_id=>wwv_flow_api.id(2090031781252480)
 ,p_plug_query_row_template=>1
+);
+wwv_flow_api.create_page_plug(
+ p_id=>wwv_flow_api.id(2413582919907905)
+,p_plug_name=>'Create Savepoint'
+,p_region_template_options=>'#DEFAULT#:t-Region--scrollBody'
+,p_plug_template=>wwv_flow_api.id(2066727649252469)
+,p_plug_display_sequence=>10
+,p_include_in_reg_disp_sel_yn=>'Y'
+,p_plug_grid_column_span=>3
+,p_plug_display_point=>'BODY'
+,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_attribute_01=>'N'
+,p_attribute_02=>'HTML'
+);
+wwv_flow_api.create_report_region(
+ p_id=>wwv_flow_api.id(2414241372907912)
+,p_name=>'Savepoints for Workspace &AI_CURRENT_WM_WORKSPACE.'
+,p_template=>wwv_flow_api.id(2066727649252469)
+,p_display_sequence=>20
+,p_include_in_reg_disp_sel_yn=>'Y'
+,p_region_template_options=>'#DEFAULT#:t-Region--scrollBody'
+,p_component_template_options=>'#DEFAULT#:t-Report--altRowsDefault:t-Report--rowHighlight'
+,p_new_grid_row=>false
+,p_display_point=>'BODY'
+,p_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'  SELECT savepoint',
+'       ,    ''<i class="fa fa-fast-backward rollbackto_sp_btn" sp="''',
+'         || savepoint',
+'         || ''" style="color:orange; font-weight:bold;" aria-hidden="true"></i>''',
+'            rollbackto_sp',
+'       , implicit',
+'       , createtime',
+'       , description',
+'       , canrollbackto',
+'       , removable',
+'    FROM all_workspace_savepoints',
+'   WHERE workspace = :ai_current_wm_workspace',
+'ORDER BY position DESC;'))
+,p_source_type=>'NATIVE_SQL_REPORT'
+,p_ajax_enabled=>'Y'
+,p_query_row_template=>wwv_flow_api.id(2076751292252472)
+,p_query_num_rows=>15
+,p_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_query_show_nulls_as=>'-'
+,p_query_num_rows_type=>'ROW_RANGES_IN_SELECT_LIST'
+,p_pagination_display_position=>'BOTTOM_RIGHT'
+,p_csv_output=>'N'
+,p_prn_output=>'N'
+,p_sort_null=>'L'
+,p_plug_query_strip_html=>'N'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2414388153907913)
+,p_query_column_id=>1
+,p_column_alias=>'SAVEPOINT'
+,p_column_display_sequence=>1
+,p_column_heading=>'Savepoint'
+,p_use_as_row_header=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2415369961907923)
+,p_query_column_id=>2
+,p_column_alias=>'ROLLBACKTO_SP'
+,p_column_display_sequence=>2
+,p_column_heading=>'Rollback to SP'
+,p_column_link=>'javascript:void(0);'
+,p_column_linktext=>'#ROLLBACKTO_SP#'
+,p_column_alignment=>'CENTER'
+,p_display_as=>'WITHOUT_MODIFICATION'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2414593142907915)
+,p_query_column_id=>3
+,p_column_alias=>'IMPLICIT'
+,p_column_display_sequence=>3
+,p_column_heading=>'Implicit'
+,p_use_as_row_header=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2414822383907918)
+,p_query_column_id=>4
+,p_column_alias=>'CREATETIME'
+,p_column_display_sequence=>4
+,p_column_heading=>'Createtime'
+,p_use_as_row_header=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2414974143907919)
+,p_query_column_id=>5
+,p_column_alias=>'DESCRIPTION'
+,p_column_display_sequence=>5
+,p_column_heading=>'Description'
+,p_use_as_row_header=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2415048123907920)
+,p_query_column_id=>6
+,p_column_alias=>'CANROLLBACKTO'
+,p_column_display_sequence=>6
+,p_column_heading=>'Can rollback to'
+,p_use_as_row_header=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_report_columns(
+ p_id=>wwv_flow_api.id(2415139844907921)
+,p_query_column_id=>7
+,p_column_alias=>'REMOVABLE'
+,p_column_display_sequence=>7
+,p_column_heading=>'Removable'
+,p_use_as_row_header=>'N'
+,p_derived_column=>'N'
+,p_include_in_export=>'Y'
+);
+wwv_flow_api.create_page_plug(
+ p_id=>wwv_flow_api.id(4745016870282149)
+,p_plug_name=>'show DBMS_WM calls for this page'
+,p_region_template_options=>'#DEFAULT#:is-collapsed:t-Region--noBorder:t-Region--scrollBody'
+,p_plug_template=>wwv_flow_api.id(2061496967252468)
+,p_plug_display_sequence=>40
+,p_include_in_reg_disp_sel_yn=>'Y'
+,p_plug_display_point=>'REGION_POSITION_05'
+,p_plug_query_row_template=>1
+,p_plug_query_options=>'DERIVED_REPORT_COLUMNS'
+,p_attribute_01=>'N'
+,p_attribute_02=>'HTML'
+);
+wwv_flow_api.create_page_button(
+ p_id=>wwv_flow_api.id(2413708819907907)
+,p_button_sequence=>10
+,p_button_plug_id=>wwv_flow_api.id(2413582919907905)
+,p_button_name=>'CREATE_SP'
+,p_button_action=>'SUBMIT'
+,p_button_template_options=>'#DEFAULT#:t-Button--success:t-Button--iconRight'
+,p_button_template_id=>wwv_flow_api.id(2089679723252478)
+,p_button_image_alt=>'Create Savepoint'
+,p_button_position=>'REGION_TEMPLATE_CLOSE'
+,p_icon_css_classes=>'fa-fast-backward'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(2413682941907906)
+,p_name=>'P6_SP_NAME'
+,p_item_sequence=>10
+,p_item_plug_id=>wwv_flow_api.id(2413582919907905)
+,p_prompt=>'Savepoint Name'
+,p_display_as=>'NATIVE_TEXT_FIELD'
+,p_cSize=>30
+,p_field_template=>wwv_flow_api.id(2089379651252478)
+,p_item_template_options=>'#DEFAULT#'
+,p_attribute_01=>'N'
+,p_attribute_02=>'N'
+,p_attribute_04=>'TEXT'
+,p_attribute_05=>'BOTH'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(2414090100907910)
+,p_name=>'P6_SP_DESCR'
+,p_item_sequence=>20
+,p_item_plug_id=>wwv_flow_api.id(2413582919907905)
+,p_prompt=>'Savepoint Description'
+,p_display_as=>'NATIVE_TEXTAREA'
+,p_cSize=>30
+,p_cHeight=>5
+,p_field_template=>wwv_flow_api.id(2089102234252478)
+,p_item_template_options=>'#DEFAULT#'
+,p_attribute_01=>'Y'
+,p_attribute_02=>'N'
+,p_attribute_03=>'N'
+,p_attribute_04=>'BOTH'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(2415741284907927)
+,p_name=>'P6_SP_TO_ROLLBACKTO'
+,p_item_sequence=>10
+,p_item_plug_id=>wwv_flow_api.id(2414241372907912)
+,p_display_as=>'NATIVE_HIDDEN'
+,p_attribute_01=>'N'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(2445486653761720)
+,p_name=>'P6_CODE_CREATE_SP'
+,p_item_sequence=>10
+,p_item_plug_id=>wwv_flow_api.id(4745016870282149)
+,p_prompt=>'Code create sp'
+,p_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'',
+'    BEGIN',
+'      DBMS_WM.CreateSavepoint(workspace      IN VARCHAR2',
+'                            , savepoint_name IN VARCHAR2',
+'                            , description    IN VARCHAR2 DEFAULT NULL',
+'                            , auto_commit    IN BOOLEAN  DEFAULT TRUE);',
+'    END;'))
+,p_source_type=>'STATIC'
+,p_display_as=>'NATIVE_DISPLAY_ONLY'
+,p_tag_css_classes=>'markdown'
+,p_colspan=>5
+,p_grid_label_column_span=>0
+,p_field_template=>wwv_flow_api.id(2089005578252478)
+,p_item_template_options=>'#DEFAULT#'
+,p_attribute_01=>'Y'
+,p_attribute_02=>'VALUE'
+,p_attribute_04=>'Y'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(2445816076761720)
+,p_name=>'P6_CODE_DELETE_SP'
+,p_item_sequence=>20
+,p_item_plug_id=>wwv_flow_api.id(4745016870282149)
+,p_prompt=>'Code delete sp'
+,p_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'',
+'    BEGIN',
+'      DBMS_WM.DeleteSavepoint(workspace IN VARCHAR2',
+'                            , savepoint_name IN VARCHAR2',
+'                            , compress_view_wo_overwrite IN BOOLEAN DEFAULT FALSE',
+'                            , auto_commit IN BOOLEAN DEFAULT TRUE',
+'                            , commit_in_batches IN BOOLEAN DEFAULT FALSE',
+'                            , batch_size IN VARCHAR2 DEFAULT ''PRIMARY_KEY_RANGE'');',
+'    END;'))
+,p_source_type=>'STATIC'
+,p_display_as=>'NATIVE_DISPLAY_ONLY'
+,p_tag_css_classes=>'markdown'
+,p_begin_on_new_line=>'N'
+,p_colspan=>6
+,p_grid_label_column_span=>0
+,p_field_template=>wwv_flow_api.id(2089005578252478)
+,p_item_template_options=>'#DEFAULT#'
+,p_attribute_01=>'Y'
+,p_attribute_02=>'VALUE'
+,p_attribute_04=>'Y'
+);
+wwv_flow_api.create_page_item(
+ p_id=>wwv_flow_api.id(2446288119761720)
+,p_name=>'P6_CODE_ROLLBACKTO_SP'
+,p_item_sequence=>30
+,p_item_plug_id=>wwv_flow_api.id(4745016870282149)
+,p_source=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'',
+'    BEGIN',
+'      DBMS_WM.RollbackToSP(workspace IN VARCHAR2',
+'                         , savepoint_name IN VARCHAR2',
+'                         , auto_commit IN BOOLEAN DEFAULT TRUE);',
+'    END;'))
+,p_source_type=>'STATIC'
+,p_display_as=>'NATIVE_DISPLAY_ONLY'
+,p_tag_css_classes=>'markdown'
+,p_colspan=>5
+,p_grid_label_column_span=>0
+,p_field_template=>wwv_flow_api.id(2089005578252478)
+,p_item_template_options=>'#DEFAULT#'
+,p_attribute_01=>'Y'
+,p_attribute_02=>'VALUE'
+,p_attribute_04=>'Y'
+);
+wwv_flow_api.create_page_da_event(
+ p_id=>wwv_flow_api.id(2447905810772431)
+,p_name=>'OnPageLoad - Load Markdown Plugin'
+,p_event_sequence=>10
+,p_bind_type=>'bind'
+,p_bind_event_type=>'ready'
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(2448339703772432)
+,p_event_id=>wwv_flow_api.id(2447905810772431)
+,p_event_result=>'TRUE'
+,p_action_sequence=>10
+,p_execute_on_page_init=>'N'
+,p_action=>'PLUGIN_NET.GOBRECHTS.MARKDOWN'
+,p_stop_execution_on_error=>'Y'
+);
+wwv_flow_api.create_page_da_event(
+ p_id=>wwv_flow_api.id(2415502395907925)
+,p_name=>'OnClick (.rollbackto_sp_btn) - confirm and rollback to SP'
+,p_event_sequence=>20
+,p_triggering_element_type=>'JQUERY_SELECTOR'
+,p_triggering_element=>'.rollbackto_sp_btn'
+,p_bind_type=>'bind'
+,p_bind_event_type=>'click'
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(2415683723907926)
+,p_event_id=>wwv_flow_api.id(2415502395907925)
+,p_event_result=>'TRUE'
+,p_action_sequence=>10
+,p_execute_on_page_init=>'N'
+,p_action=>'NATIVE_JAVASCRIPT_CODE'
+,p_attribute_01=>'$s(''P6_SP_TO_ROLLBACKTO'',$(this.triggeringElement).attr(''SP''));'
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(2415811776907928)
+,p_event_id=>wwv_flow_api.id(2415502395907925)
+,p_event_result=>'TRUE'
+,p_action_sequence=>20
+,p_execute_on_page_init=>'N'
+,p_action=>'NATIVE_CONFIRM'
+,p_attribute_01=>'Are you sure to rollback to the savepoint?'
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(2415994482907929)
+,p_event_id=>wwv_flow_api.id(2415502395907925)
+,p_event_result=>'TRUE'
+,p_action_sequence=>30
+,p_execute_on_page_init=>'N'
+,p_action=>'NATIVE_EXECUTE_PLSQL_CODE'
+,p_attribute_01=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'BEGIN',
+'   workspace_manager_bl.sp_rollbackto(p_ws_name => :ai_current_wm_workspace',
+'                                    , p_sp_name => :p6_sp_to_rollbackto);',
+'END;'))
+,p_attribute_02=>'P6_SP_TO_ROLLBACKTO'
+,p_attribute_03=>'P6_SP_TO_ROLLBACKTO'
+,p_attribute_04=>'N'
+,p_stop_execution_on_error=>'Y'
+,p_wait_for_result=>'Y'
+);
+wwv_flow_api.create_page_da_action(
+ p_id=>wwv_flow_api.id(2416004262907930)
+,p_event_id=>wwv_flow_api.id(2415502395907925)
+,p_event_result=>'TRUE'
+,p_action_sequence=>40
+,p_execute_on_page_init=>'N'
+,p_action=>'NATIVE_SUBMIT_PAGE'
+,p_attribute_02=>'Y'
+);
+wwv_flow_api.create_page_process(
+ p_id=>wwv_flow_api.id(2413924433907909)
+,p_process_sequence=>10
+,p_process_point=>'AFTER_SUBMIT'
+,p_process_type=>'NATIVE_PLSQL'
+,p_process_name=>'CREATE_SP'
+,p_process_sql_clob=>wwv_flow_string.join(wwv_flow_t_varchar2(
+'BEGIN',
+'   DBMS_WM.createsavepoint(workspace      => :ai_current_wm_workspace',
+'                         , savepoint_name => :p6_sp_name',
+'                         , description    => :p6_sp_descr);',
+'END;'))
+,p_process_error_message=>'Error while creating savepoint &P6_SP_NAME.!'
+,p_error_display_location=>'INLINE_IN_NOTIFICATION'
+,p_process_when_button_id=>wwv_flow_api.id(2413708819907907)
+,p_process_success_message=>'Savepoint &P6_SP_NAME. created.'
 );
 end;
 /

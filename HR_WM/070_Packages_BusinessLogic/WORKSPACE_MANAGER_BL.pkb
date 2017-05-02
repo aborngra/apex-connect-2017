@@ -251,5 +251,50 @@ IS
 
       RETURN v_ret;
    END ws_get_parent;
+
+   PROCEDURE sp_rollbackto(
+      p_ws_name IN all_workspace_savepoints.workspace%TYPE
+    , p_sp_name IN all_workspace_savepoints.savepoint%TYPE)
+   IS
+      v_position all_workspace_savepoints.position%TYPE;
+
+      CURSOR v_cur_position
+      IS
+         SELECT position
+           FROM all_workspace_savepoints
+          WHERE workspace = p_ws_name AND savepoint = p_sp_name;
+   BEGIN
+      --------------------------------------------------------------------------
+      -- check params
+      --------------------------------------------------------------------------
+      IF (p_ws_name IS NOT NULL AND p_sp_name IS NOT NULL)
+      THEN
+         -----------------------------------------------------------------------
+         -- find out position to delete overhead savepoints
+         -----------------------------------------------------------------------
+         OPEN v_cur_position;
+
+         FETCH v_cur_position INTO v_position;
+
+         CLOSE v_cur_position;
+
+         -----------------------------------------------------------------------
+         -- rollback to savepoint, that makes SP with higher position redundant
+         -----------------------------------------------------------------------
+         DBMS_WM.rollbacktosp(workspace      => p_ws_name
+                            , savepoint_name => p_sp_name);
+
+         -----------------------------------------------------------------------
+         -- delete savepoints that are redundant
+         -----------------------------------------------------------------------
+         FOR i IN (SELECT *
+                     FROM all_workspace_savepoints
+                    WHERE workspace = p_ws_name AND position > v_position)
+         LOOP
+            DBMS_WM.deletesavepoint(workspace      => p_ws_name
+                                  , savepoint_name => i.savepoint);
+         END LOOP;
+      END IF;
+   END sp_rollbackto;
 END "WORKSPACE_MANAGER_BL";
 /
